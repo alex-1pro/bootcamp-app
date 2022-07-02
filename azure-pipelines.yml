@@ -64,7 +64,8 @@ stages:
       - job:
         displayName: 'Create Artifact'
         pool:
-          name: local
+#          name: local
+          vmImage: 'ubuntu-latest'
         steps:
           - task: NodeTool@0
             inputs:
