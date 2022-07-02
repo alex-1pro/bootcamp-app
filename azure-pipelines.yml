@@ -59,17 +59,17 @@ stages:
 #                inputs:
 #                    script: ansible-playbook -i /home/ubuntu/hosts /home/ubuntu/node.yml
 
-  - stage: SetupEnvironmentsStaging
+  - stage: SetupEnvironmentsProduction
     variables:
-    - group: staging
+    - group: production
     jobs:
     - job:
     - deployment: VMDeploy
       displayName: Deploy to VM
       environment:
-        name: staging
+        name: production
         resourceType: VirtualMachine
-        tags: staging # only deploy to virtual machines with this tag
+        tags: production # only deploy to virtual machines with this tag
       strategy:
         runOnce:
           deploy:
