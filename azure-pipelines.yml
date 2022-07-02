@@ -99,7 +99,7 @@ stages:
             inputs:
               command: publish
               publishDirectory: '$(Build.ArtifactStagingDirectory)'
-              vstsFeedPublish: 'bootcamp-app/bootcamp-app-up'
+              vstsFeedPublish: 'week7-CI-CD/bootcamp-app'
               vstsFeedPackagePublish: 'bootcamp-app-package'
               packagePublishDescription: 'bootcamp-app package'
               versionOption: 'patch'
