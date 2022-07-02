@@ -1,5 +1,5 @@
 trigger:
-- test
+- master
 stages:
   - stage: SetupEnvironments
     variables:
