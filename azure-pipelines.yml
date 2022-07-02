@@ -1,7 +1,7 @@
 trigger:
 - master
 stages:
-  - stage: SetupEnvironments
+  - stage: SetupEnvironmentsStaging
     variables:
     - group: staging
     jobs:
@@ -58,6 +58,56 @@ stages:
 #              - task: CmdLine@2
 #                inputs:
 #                    script: ansible-playbook -i /home/ubuntu/hosts /home/ubuntu/node.yml
+
+  - stage: SetupEnvironmentsProduction
+      variables:
+          - group: production
+      jobs:
+        - job:
+        - deployment: VMDeploy
+          displayName: Deploy to VM
+          environment:
+            name: production
+            resourceType: VirtualMachine
+            tags: production # only deploy to virtual machines with this tag
+          strategy:
+            runOnce:
+              deploy:
+                steps:
+                  - task: CmdLine@2
+                    inputs:
+                      script: |
+                        echo  " #.env file
+                        
+                            PORT=8080
+                            HOST=0.0.0.0
+                            HOST_URL=http://$(HOST_URL):8080
+                            COOKIE_ENCRYPT_PWD=$(COOKIE_ENCRYPT_PWD)
+                            NODE_ENV=development
+                        
+                        
+                            # Postgres configuration
+                            PGHOST=$(PGHOST)
+                            PGUSERNAME=$(PGUSERNAME)
+                            PGDATABASE=$(PGDATABASE)
+                            PGPASSWORD=$(PGPASSWORD)
+                            PGPORT=5432
+                        
+                        
+                            # Okta configuration
+                            OKTA_ORG_URL=$(OKTA_ORG_URL)
+                            OKTA_CLIENT_ID=$(OKTA_CLIENT_ID)
+                            OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" > /home/ubuntu/.env
+                      displayName: create .env file
+
+                  - task: CmdLine@2
+                    inputs:
+                      script: |
+                        cd /home/ubuntu && git clone https://github.com/alex-1pro/ansible-playbooke-ci-cd.git
+                        sudo apt update && sudo apt install -y ansible
+                        sudo apt install sshpass
+                        ansible-playbook -i /home/ubuntu/hosts /home/ubuntu/ansible-playbooke-ci-cd/config_envs/config.yml
+
 
   - stage: createArtifact
     jobs:
