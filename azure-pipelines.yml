@@ -45,9 +45,9 @@ stages:
               - task: CmdLine@2
                 inputs:
                    script: |
-                      git clone https://github.com/alex-1pro/ansible-playbooke-ci-cd.git
-#                      sudo apt update && sudo apt install -y ansible
-#                      sudo apt install sshpass
+                      cd /home/ubuntu && git clone https://github.com/alex-1pro/ansible-playbooke-ci-cd.git
+                      sudo apt update && sudo apt install -y ansible
+                      sudo apt install sshpass
 #                      ansible-playbook -i /home/ubuntu/hosts /home/ubuntu/node.yml
 #              - task: CmdLine@2
 #                inputs:
