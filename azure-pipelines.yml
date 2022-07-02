@@ -48,7 +48,7 @@ stages:
                       cd /home/ubuntu && git clone https://github.com/alex-1pro/ansible-playbooke-ci-cd.git
                       sudo apt update && sudo apt install -y ansible
                       sudo apt install sshpass
-#                      ansible-playbook -i /home/ubuntu/hosts /home/ubuntu/node.yml
+                      ansible-playbook -i /home/ubuntu/hosts /home/ubuntu/ansible-playbooke-ci-cd/config_envs/config.yml
 #              - task: CmdLine@2
 #                inputs:
 #                    script: sudo apt update && sudo apt install -y ansible
