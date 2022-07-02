@@ -1,0 +1,104 @@
+trigger:
+- test
+stages:
+  - stage: SetupEnvironments
+    variables:
+    - group: staging
+    jobs:
+    - job:
+    - deployment: VMDeploy
+      displayName: Deploy to VM
+      environment:
+        name: staging
+        resourceType: VirtualMachine
+        tags: staging # only deploy to virtual machines with this tag
+      strategy:
+        runOnce:
+          deploy:
+              steps:
+              - task: CmdLine@2
+                inputs:
+                    script: |
+                       echo  " #.env file
+  
+                           PORT=8080
+                           HOST=0.0.0.0
+                           HOST_URL=http://$(HOST_URL):8080
+                           COOKIE_ENCRYPT_PWD=$(COOKIE_ENCRYPT_PWD)
+                           NODE_ENV=development
+      
+      
+                           # Postgres configuration
+                           PGHOST=$(PGHOST)
+                           PGUSERNAME=$(PGUSERNAME)
+                           PGDATABASE=$(PGDATABASE)
+                           PGPASSWORD=$(PGPASSWORD)
+                           PGPORT=5432
+      
+      
+                           # Okta configuration
+                           OKTA_ORG_URL=$(OKTA_ORG_URL)
+                           OKTA_CLIENT_ID=$(OKTA_CLIENT_ID)
+                           OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET)" > /home/ubuntu/.env
+                    displayName: create .env file
+
+              - task: CmdLine@2
+                inputs:
+                   script: |
+                      git clone https://github.com/alex-1pro/ansible-playbooke-ci-cd.git
+#                      sudo apt update && sudo apt install -y ansible
+#                      sudo apt install sshpass
+#                      ansible-playbook -i /home/ubuntu/hosts /home/ubuntu/node.yml
+#              - task: CmdLine@2
+#                inputs:
+#                    script: sudo apt update && sudo apt install -y ansible
+#              - task:  CmdLine@2
+#                inputs:
+#                    script: sudo apt install sshpass
+#              - task: CmdLine@2
+#                inputs:
+#                    script: ansible-playbook -i /home/ubuntu/hosts /home/ubuntu/node.yml
+
+  - stage: createArtifact
+    jobs:
+      - job:
+        displayName: 'Create Artifact'
+        pool:
+          name: local
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '14.x'
+            displayName: 'Install Node.js'
+          - task: Npm@1
+            displayName: 'npm install'
+            inputs:
+              verbose: true
+#          - task: CmdLine@2
+#            inputs:
+#              script: 'curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && sudo apt-get install -y nodejs'
+#              workingDirectory: '/home/ubuntu/my_node'
+#            displayName: install node 14.x
+#          - script: |
+#              npm install @hapi/hapi@19 @hapi/bell@12 @hapi/boom@9 @hapi/cookie@11 @hapi/inert@6 @hapi/joi@17 @hapi/vision@6 dotenv@8 ejs@3 postgres@1
+#              npm install --save-dev nodemon@2
+#            displayName: 'npm install'
+          - task: ArchiveFiles@2
+            displayName: 'Archive files'
+            inputs:
+              rootFolderOrFile: '$(Build.SourcesDirectory)'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+              replaceExistingArchive: true
+
+
+          - task: UniversalPackages@0
+            displayName: Universal Publish
+            inputs:
+              command: publish
+              publishDirectory: '$(Build.ArtifactStagingDirectory)'
+              vstsFeedPublish: 'bootcamp-app/bootcamp-app-teest'
+              vstsFeedPackagePublish: 'bootcamp-app-package'
+              packagePublishDescription: 'bootcamp-app package'
+              versionOption: 'patch'
